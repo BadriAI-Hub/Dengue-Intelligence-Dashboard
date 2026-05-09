@@ -1,250 +1,418 @@
 import streamlit as st
 import pandas as pd
 import folium
+
 from streamlit_folium import st_folium
-from datetime import datetime
+
 
 # -----------------------------------
-# Page Configuration
+# PAGE CONFIG
 # -----------------------------------
+
 st.set_page_config(
-    page_title="Dengue Intelligent Dashboard (DID)",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    page_title="DID Dashboard",
+    layout="wide"
 )
 
-# -----------------------------------
-# Custom Styling
-# -----------------------------------
-st.markdown("""
-<style>
-
-.main {
-    background: linear-gradient(135deg, #2b0000, #7a0000, #c1121f);
-    color: white;
-}
-
-section[data-testid="stSidebar"] {
-    background: rgba(20,20,20,0.95);
-    border-right: 1px solid rgba(255,255,255,0.1);
-}
-
-.glass-card {
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-}
-
-h1, h2, h3, h4, p, label {
-    color: white !important;
-}
-
-.metric-box {
-    background: rgba(255,255,255,0.1);
-    padding: 15px;
-    border-radius: 15px;
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.alert-high {
-    background-color: rgba(255, 0, 0, 0.25);
-    border-left: 5px solid red;
-    padding: 15px;
-    border-radius: 12px;
-}
-
-.alert-medium {
-    background-color: rgba(255, 165, 0, 0.25);
-    border-left: 5px solid orange;
-    padding: 15px;
-    border-radius: 12px;
-}
-
-.alert-low {
-    background-color: rgba(0, 255, 0, 0.15);
-    border-left: 5px solid green;
-    padding: 15px;
-    border-radius: 12px;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 # -----------------------------------
-# Sidebar Login
+# CUSTOM CSS
 # -----------------------------------
+
+st.markdown(
+    """
+    <style>
+
+    .stApp {
+        background: linear-gradient(
+            135deg,
+            #2b0000,
+            #7f0000,
+            #c1121f
+        );
+    }
+
+    .glass {
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(10px);
+
+        border-radius: 20px;
+
+        padding: 20px;
+
+        margin-bottom: 20px;
+
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    h1,h2,h3,h4,p,label {
+        color: white !important;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# -----------------------------------
+# SIDEBAR
+# -----------------------------------
+
 st.sidebar.title("🔐 Login")
 
-username = st.sidebar.text_input("Username")
-password = st.sidebar.text_input("Password", type="password")
+username = st.sidebar.text_input(
+    "Username"
+)
 
-login_btn = st.sidebar.button("Login")
+password = st.sidebar.text_input(
+    "Password",
+    type="password"
+)
+
+login_btn = st.sidebar.button(
+    "Login"
+)
 
 if login_btn:
-    st.sidebar.success(f"Welcome {username}")
+    st.sidebar.success(
+        f"Welcome {username}"
+    )
 
 st.sidebar.markdown("---")
-st.sidebar.write("DID System v1")
-st.sidebar.write(datetime.now().strftime("%Y-%m-%d"))
+
+st.sidebar.write(
+    "Dengue Intelligent Dashboard"
+)
+
 
 # -----------------------------------
-# Header
+# HEADER
 # -----------------------------------
-st.markdown("""
-<div class="glass-card">
-    <h1>🦟 Dengue Intelligent Dashboard (DID)</h1>
-    <p>AI-Powered Early Warning System for Dengue Fever in Sudan</p>
-</div>
-""", unsafe_allow_html=True)
 
-st.write("")
+st.markdown(
+    """
+    <div class="glass">
+        <h1>
+            🦟 Dengue Intelligent Dashboard
+        </h1>
 
-# -----------------------------------
-# Dashboard Layout
-# -----------------------------------
-col1, col2 = st.columns([2, 1])
-
-# -----------------------------------
-# Interactive Map
-# -----------------------------------
-with col1:
-    st.markdown("""
-    <div class="glass-card">
-        <h2>🗺 Interactive Risk Map</h2>
-    """, unsafe_allow_html=True)
-
-    # Create map
-    m = folium.Map(location=[15.55, 32.55], zoom_start=6)
-
-    # Example markers
-    folium.CircleMarker(
-        location=[15.60, 32.53],
-        radius=12,
-        popup="Khartoum - High Risk",
-        color="red",
-        fill=True,
-        fill_color="red"
-    ).add_to(m)
-
-    folium.CircleMarker(
-        location=[15.45, 32.40],
-        radius=10,
-        popup="Omdurman - Medium Risk",
-        color="orange",
-        fill=True,
-        fill_color="orange"
-    ).add_to(m)
-
-    folium.CircleMarker(
-        location=[15.70, 32.65],
-        radius=8,
-        popup="Bahri - Low Risk",
-        color="green",
-        fill=True,
-        fill_color="green"
-    ).add_to(m)
-
-    st_folium(m, width=900, height=500)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# -----------------------------------
-# Alerts Panel
-# -----------------------------------
-with col2:
-    st.markdown("""
-    <div class="glass-card">
-        <h2>🚨 Early Warning Alerts</h2>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="alert-high">
-        <strong>Critical Alert:</strong><br>
-        High outbreak probability detected in Khartoum.
+        <p>
+            AI-Powered Early Warning System
+        </p>
     </div>
-    """, unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+)
 
-    st.write("")
-
-    st.markdown("""
-    <div class="alert-medium">
-        <strong>Medium Risk:</strong><br>
-        Increased mosquito activity in Omdurman.
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.write("")
-
-    st.markdown("""
-    <div class="alert-low">
-        <strong>Low Risk:</strong><br>
-        Stable conditions in Bahri district.
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # -----------------------------------
-# Statistics Section
+# METRICS
 # -----------------------------------
-st.write("")
 
-st.markdown("""
-<div class="glass-card">
-    <h2>📊 Dengue Cases Monitoring</h2>
-</div>
-""", unsafe_allow_html=True)
+m1, m2, m3, m4 = st.columns(4)
 
-# Example dataset
-data = pd.DataFrame({
-    "Week": ["Week 1", "Week 2", "Week 3", "Week 4"],
-    "Cases": [45, 78, 120, 95]
-})
+with m1:
+    st.metric(
+        "Active Cases",
+        "338"
+    )
 
-# Charts
-chart_col1, chart_col2, chart_col3 = st.columns(3)
+with m2:
+    st.metric(
+        "High Risk Areas",
+        "5"
+    )
 
-with chart_col1:
-    st.markdown("""
-    <div class="metric-box">
-        <h3>Total Cases</h3>
-        <h2>338</h2>
-    </div>
-    """, unsafe_allow_html=True)
+with m3:
+    st.metric(
+        "Alerts",
+        "12"
+    )
 
-with chart_col2:
-    st.markdown("""
-    <div class="metric-box">
-        <h3>High Risk Districts</h3>
-        <h2>5</h2>
-    </div>
-    """, unsafe_allow_html=True)
+with m4:
+    st.metric(
+        "Model Accuracy",
+        "89%"
+    )
 
-with chart_col3:
-    st.markdown("""
-    <div class="metric-box">
-        <h3>Prediction Accuracy</h3>
-        <h2>89%</h2>
-    </div>
-    """, unsafe_allow_html=True)
-
-# Line chart
-st.line_chart(data.set_index("Week"))
-
-# Data table
-st.dataframe(data, use_container_width=True)
 
 # -----------------------------------
-# Footer
+# MAIN LAYOUT
 # -----------------------------------
-st.markdown("""
-<hr>
-<center>
-<p style='color:white; opacity:0.7;'>
-Dengue Intelligent Dashboard (DID) | Built with Streamlit + Folium + FastAPI Ready
-</p>
-</center>
-""", unsafe_allow_html=True)
+
+left, right = st.columns([2,1])
+
+
+# -----------------------------------
+# MAP
+# -----------------------------------
+
+with left:
+
+    st.markdown(
+        """
+        <div class="glass">
+        <h2>🗺 Khartoum Risk Map</h2>
+        """,
+        unsafe_allow_html=True
+    )
+
+    m = folium.Map(
+        location=[15.55, 32.55],
+        zoom_start=8
+    )
+
+    districts = [
+
+        (
+            "Khartoum",
+            [15.60, 32.53],
+            "Critical",
+            "red"
+        ),
+
+        (
+            "Omdurman",
+            [15.45, 32.40],
+            "High",
+            "darkred"
+        ),
+
+        (
+            "Bahri",
+            [15.70, 32.65],
+            "Medium",
+            "orange"
+        ),
+
+        (
+            "Jabal Awliya",
+            [15.20, 32.30],
+            "Low",
+            "green"
+        )
+    ]
+
+    for district in districts:
+
+        name = district[0]
+        coords = district[1]
+        risk = district[2]
+        color = district[3]
+
+        folium.CircleMarker(
+            location=coords,
+            radius=15,
+            popup=f"{name} - {risk}",
+            color=color,
+            fill=True,
+            fill_color=color
+        ).add_to(m)
+
+    st_folium(
+        m,
+        width=800,
+        height=500
+    )
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
+
+
+# -----------------------------------
+# ALERTS
+# -----------------------------------
+
+with right:
+
+    st.markdown(
+        """
+        <div class="glass">
+        <h2>🚨 Alerts</h2>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.error(
+        "Critical outbreak probability in Khartoum"
+    )
+
+    st.warning(
+        "High mosquito activity in Omdurman"
+    )
+
+    st.info(
+        "Heavy rainfall expected this week"
+    )
+
+    st.success(
+        "Low risk in Jabal Awliya"
+    )
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
+
+
+# -----------------------------------
+# TABS
+# -----------------------------------
+
+tab1, tab2, tab3 = st.tabs(
+    [
+        "📈 Forecast",
+        "🌡 Climate",
+        "🔍 SHAP"
+    ]
+)
+
+
+# -----------------------------------
+# FORECAST TAB
+# -----------------------------------
+
+with tab1:
+
+    df = pd.DataFrame({
+
+        "Week": [
+            "W1",
+            "W2",
+            "W3",
+            "W4",
+            "W5"
+        ],
+
+        "Actual": [
+            40,
+            70,
+            120,
+            150,
+            180
+        ],
+
+        "Predicted": [
+            45,
+            75,
+            118,
+            160,
+            210
+        ]
+    })
+
+    st.line_chart(
+        df.set_index("Week")
+    )
+
+
+# -----------------------------------
+# CLIMATE TAB
+# -----------------------------------
+
+with tab2:
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+        st.metric(
+            "Temperature",
+            "34°C"
+        )
+
+    with c2:
+        st.metric(
+            "Humidity",
+            "74%"
+        )
+
+    with c3:
+        st.metric(
+            "Rainfall",
+            "22 mm"
+        )
+
+    with c4:
+        st.metric(
+            "NDVI",
+            "0.61"
+        )
+
+
+# -----------------------------------
+# SHAP TAB
+# -----------------------------------
+
+with tab3:
+
+    shap_df = pd.DataFrame({
+
+        "Factor": [
+            "Rainfall",
+            "Humidity",
+            "NDVI",
+            "Temperature"
+        ],
+
+        "Importance": [
+            0.40,
+            0.30,
+            0.20,
+            0.10
+        ]
+    })
+
+    st.bar_chart(
+        shap_df.set_index("Factor")
+    )
+
+
+# -----------------------------------
+# PIPELINE STATUS
+# -----------------------------------
+
+st.markdown(
+    """
+    <div class="glass">
+        <h2>⚙ Pipeline Status</h2>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+p1, p2, p3, p4 = st.columns(4)
+
+with p1:
+    st.success("1️⃣ Ingestion")
+
+with p2:
+    st.info("2️⃣ Processing")
+
+with p3:
+    st.warning("3️⃣ LSTM")
+
+with p4:
+    st.success("4️⃣ Notifications")
+
+
+# -----------------------------------
+# FOOTER
+# -----------------------------------
+
+st.markdown(
+    """
+    <hr>
+
+    <center>
+
+    <p style="color:white;">
+        DID Prototype v1
+    </p>
+
+    </center>
+    """,
+    unsafe_allow_html=True
+)
