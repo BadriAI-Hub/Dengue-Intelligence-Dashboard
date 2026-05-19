@@ -221,36 +221,71 @@ if geojson_data:
             elif risk == "Medium":
 
                 color = "#ff9800"
+# =====================================================
+# GENERATE RISK DATA (FIXED)
+# =====================================================
+
+risk_data = {}
+
+if geojson_data:
+
+    for feature in geojson_data["features"]:
+
+        try:
+
+            props = feature.get("properties", {})
+
+            # ⚠️ IMPORTANT: adjust this if needed
+            name = props.get("NAME_2") or props.get("name") or props.get("NAME") or "Unknown"
+
+            # Simulated risk (replace later with LSTM)
+            risk = random.choice(["Critical", "High", "Medium", "Low", "None"])
+
+            if risk == "Critical":
+                color = "#ff0000"
+
+            elif risk == "High":
+                color = "#b30000"
+
+            elif risk == "Medium":
+                color = "#ff9800"
 
             elif risk == "Low":
-
                 color = "#4caf50"
 
             else:
-
                 color = "#d9d9d9"
 
-            cases = random.randint(
-                5,
-                250
-            )
-
-            risk_data[locality] = {
-
+            risk_data[name] = {
                 "risk": risk,
-
                 "color": color,
-
-                "cases": cases
+                "cases": random.randint(10, 300)
             }
 
         except:
-
-            pass
+            continue
 
 
 # =====================================================
-# DRAW FEATURES
+# STYLE FUNCTION (FIXED LAMBDA ISSUE)
+# =====================================================
+
+def style_function_factory(color):
+
+    def style(_):
+
+        return {
+            "fillColor": color,
+            "color": "white",
+            "weight": 1,
+            "fillOpacity": 0.75
+        }
+
+    return style
+
+
+# =====================================================
+# DRAW MAP (FIXED)
 # =====================================================
 
 if geojson_data:
@@ -259,76 +294,93 @@ if geojson_data:
 
         try:
 
-            properties = feature.get(
-                "properties",
-                {}
-            )
+            props = feature.get("properties", {})
 
-            locality = properties.get(
-                "NAME_2",
-                ""
-            )
+            name = props.get("NAME_2") or props.get("name") or props.get("NAME") or "Unknown"
 
-            risk_info = risk_data.get(
-                locality,
-                {}
-            )
+            data = risk_data.get(name, None)
 
-            color = risk_info.get(
-                "color",
-                "#d9d9d9"
-            )
+            if data:
 
-            risk_level = risk_info.get(
-                "risk",
-                "None"
-            )
+                color = data["color"]
+                risk = data["risk"]
+                cases = data["cases"]
 
-            cases = risk_info.get(
-                "cases",
-                0
-            )
+            else:
+
+                color = "#d9d9d9"
+                risk = "No Data"
+                cases = 0
 
             folium.GeoJson(
-
                 feature,
-
-                style_function=lambda x,
-                color=color: {
-
-                    "fillColor": color,
-
-                    "color": "white",
-
-                    "weight": 1,
-
-                    "fillOpacity": 0.7
-                },
-
-                tooltip=f"""
-                {locality}
-                | Risk: {risk_level}
-                | Cases: {cases}
-                """
-
+                style_function=style_function_factory(color),
+                tooltip=folium.GeoJsonTooltip(
+                    fields=[],
+                    aliases=[],
+                    labels=False
+                )
             ).add_to(m)
 
         except:
-
-            pass
+            continue
 
 
 # =====================================================
-# SHOW MAP
+# ADD LABELS (CASES)
 # =====================================================
 
-folium_static(
-    m,
-    width=1200,
-    height=700
-)
+if geojson_data:
 
+    for feature in geojson_data["features"]:
 
+        try:
+
+            props = feature.get("properties", {})
+
+            name = props.get("NAME_2") or props.get("name") or props.get("NAME") or "Unknown"
+
+            if name not in risk_data:
+                continue
+
+            geom = feature["geometry"]
+            coords = geom["coordinates"]
+
+            if geom["type"] == "Polygon":
+                lon, lat = coords[0][0]
+
+            elif geom["type"] == "MultiPolygon":
+                lon, lat = coords[0][0][0]
+
+            else:
+                continue
+
+            cases = risk_data[name]["cases"]
+            color = risk_data[name]["color"]
+
+            folium.Marker(
+                location=[lat, lon],
+                icon=folium.DivIcon(
+                    html=f"""
+                    <div style="
+                        background:{color};
+                        color:white;
+                        border-radius:50%;
+                        width:32px;
+                        height:32px;
+                        text-align:center;
+                        line-height:32px;
+                        font-weight:bold;
+                        border:2px solid white;
+                    ">
+                    {cases}
+                    </div>
+                    """
+                )
+            ).add_to(m)
+
+        except:
+            continue
 # =====================================================
 # ALERTS
 # =====================================================
