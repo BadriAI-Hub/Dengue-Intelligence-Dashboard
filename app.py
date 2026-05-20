@@ -392,73 +392,111 @@ with tab1:
 
     st.subheader(
         "📈 Multi-Variable Dengue Forecast"
-    )
+    )forecast_df = pd.DataFrame({
 
-    forecast_df = pd.DataFrame({
+    "Week": [
+        "W1",
+        "W2",
+        "W3",
+        "W4",
+        "W5",
+        "W6"
+    ],
 
-        "Week": [
-            "W1",
-            "W2",
-            "W3",
-            "W4",
-            "W5",
-            "W6"
-        ],
+    "Actual Cases": [
+        45,
+        72,
+        118,
+        155,
+        None,
+        None
+    ],
 
-        "Actual Cases": [
-            45,
-            72,
-            118,
-            155,
-            None,
-            None
-        ],
+    "Predicted Cases": [
+        50,
+        75,
+        120,
+        165,
+        210,
+        260
+    ],
 
-        "Predicted Cases": [
-            50,
-            75,
-            120,
-            165,
-            210,
-            260
-        ],
+    "Temperature": [
+        31,
+        32,
+        34,
+        35,
+        36,
+        37
+    ],
 
-        "Temperature": [
-            31,
-            32,
-            34,
-            35,
-            36,
-            37
-        ],
+    "Humidity": [
+        68,
+        70,
+        74,
+        78,
+        80,
+        83
+    ],
 
-        "Humidity": [
-            68,
-            70,
-            74,
-            78,
-            80,
-            83
-        ],
+    "Rainfall": [
+        12,
+        18,
+        25,
+        30,
+        42,
+        55
+    ],
 
-        "Rainfall": [
-            12,
-            18,
-            25,
-            30,
-            42,
-            55
-        ],
+    "NDVI": [
+        0.42,
+        0.48,
+        0.53,
+        0.61,
+        0.66,
+        0.72
+    ],
 
-        "NDVI": [
-            0.42,
-            0.48,
-            0.53,
-            0.61,
-            0.66,
-            0.72
-        ]
-    })
+    # =========================================
+    # NEW VARIABLES
+    # =========================================
+
+    "Flood Risk": [
+        "Low",
+        "Medium",
+        "Medium",
+        "High",
+        "High",
+        "Critical"
+    ],
+
+    "Stagnant Water": [
+        18,
+        24,
+        35,
+        42,
+        57,
+        73
+    ],
+
+    "Displacement Camps": [
+        4,
+        5,
+        6,
+        7,
+        9,
+        11
+    ],
+
+    "Population Density": [
+        1200,
+        1350,
+        1480,
+        1600,
+        1780,
+        1950
+    ]
+})
 
     st.line_chart(
         forecast_df.set_index("Week")[
