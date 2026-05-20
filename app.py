@@ -189,7 +189,7 @@ st.markdown("""
 <div class="glass">
 
 <h1>
-🦟 Dengue Intelligence Dashboard (DID)
+🦟 Dengue Intelligent Dashboard (DID)
 </h1>
 
 <p>
