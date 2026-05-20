@@ -13,8 +13,9 @@ from streamlit_folium import folium_static
 # =====================================================
 
 st.set_page_config(
-    page_title="Sudan Dengue Dashboard",
-    layout="wide"
+    page_title="Khartoum Dengue Dashboard",
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 
@@ -25,18 +26,32 @@ st.set_page_config(
 st.markdown("""
 <style>
 
+/* =========================
+MAIN BACKGROUND
+========================= */
+
 .stApp{
     background: linear-gradient(
         135deg,
-        #1a0000,
-        #660000,
-        #b30000
+        #140000,
+        #5c0000,
+        #a30000
     );
 }
 
-h1,h2,h3,h4,p,label{
+
+/* =========================
+TEXT
+========================= */
+
+h1,h2,h3,h4,p,label,span{
     color:white !important;
 }
+
+
+/* =========================
+GLASS EFFECT
+========================= */
 
 .glass{
     background: rgba(255,255,255,0.08);
@@ -52,10 +67,82 @@ h1,h2,h3,h4,p,label{
     box-shadow:0 8px 32px rgba(0,0,0,0.25);
 }
 
+
+/* =========================
+METRICS
+========================= */
+
 [data-testid="metric-container"]{
+
     background: rgba(255,255,255,0.08);
+
     border-radius:15px;
+
     padding:15px;
+
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+
+/* =========================
+SIDEBAR
+========================= */
+
+[data-testid="stSidebar"]{
+
+    background: linear-gradient(
+        180deg,
+        #ffffff,
+        #f3f3f3
+    );
+
+    border-right:3px solid #8b0000;
+}
+
+
+/* Sidebar text */
+
+[data-testid="stSidebar"] *{
+
+    color:#111111 !important;
+}
+
+
+/* Inputs */
+
+.stTextInput input{
+
+    background:white !important;
+
+    color:black !important;
+
+    border-radius:10px !important;
+}
+
+
+/* Buttons */
+
+.stButton button{
+
+    background:#8b0000 !important;
+
+    color:white !important;
+
+    border:none !important;
+
+    border-radius:10px !important;
+
+    font-weight:bold !important;
+}
+
+
+/* =========================
+TOP MENU ICON
+========================= */
+
+button[kind="header"]{
+
+    color:white !important;
 }
 
 </style>
@@ -89,6 +176,10 @@ st.sidebar.write(
     "DID Early Warning System"
 )
 
+st.sidebar.info(
+    "AI-powered dengue surveillance for Khartoum State."
+)
+
 
 # =====================================================
 # HEADER
@@ -98,7 +189,7 @@ st.markdown("""
 <div class="glass">
 
 <h1>
-🦟 Sudan Dengue Intelligence Dashboard
+🦟 Khartoum Dengue Intelligence Dashboard
 </h1>
 
 <p>
@@ -129,14 +220,14 @@ with m4:
 
 
 # =====================================================
-# MAP SECTION
+# MAP TITLE
 # =====================================================
 
 st.markdown("""
 <div class="glass">
 
 <h2>
-🔥 Sudan Dengue HeatMap
+🔥 Khartoum HeatMap
 </h2>
 
 </div>
@@ -144,149 +235,93 @@ st.markdown("""
 
 
 # =====================================================
-# CREATE MAP
+# KHARTOUM MAP
 # =====================================================
 
 m = folium.Map(
 
-    location=[15.5, 30.5],
+    location=[15.55, 32.53],
 
-    zoom_start=5,
+    zoom_start=10,
 
     tiles="cartodbpositron"
 )
 
 
 # =====================================================
-# LOAD GEOJSON
+# KHARTOUM HEAT POINTS
 # =====================================================
 
-geojson_data = None
+heat_data = [
 
-try:
+    [15.60, 32.53, 300],   # Khartoum center
 
-    with open(
-        "sudan_localities.geojson",
-        "r",
-        encoding="utf-8"
-    ) as f:
+    [15.64, 32.49, 250],   # Omdurman
 
-        geojson_data = json.load(f)
+    [15.67, 32.62, 220],   # Bahri
 
-except Exception as e:
+    [15.58, 32.57, 200],
 
-    st.error(f"GeoJSON Error: {e}")
+    [15.70, 32.60, 180],
 
+    [15.63, 32.55, 260],
 
-# =====================================================
-# HEATMAP DATA
-# =====================================================
+    [15.61, 32.50, 150],
 
-heat_data = []
+    [15.68, 32.52, 170],
 
+    [15.57, 32.61, 140],
 
-# =====================================================
-# EXTRACT CENTER POINTS
-# =====================================================
-
-if geojson_data:
-
-    for feature in geojson_data["features"]:
-
-        try:
-
-            geometry = feature["geometry"]
-
-            coords = geometry["coordinates"]
-
-            # ------------------------------------------------
-            # RANDOM CASE INTENSITY
-            # ------------------------------------------------
-
-            intensity = random.randint(20, 300)
-
-            # ------------------------------------------------
-            # POLYGON
-            # ------------------------------------------------
-
-            if geometry["type"] == "Polygon":
-
-                point = coords[0][0]
-
-                lon = point[0]
-
-                lat = point[1]
-
-            # ------------------------------------------------
-            # MULTIPOLYGON
-            # ------------------------------------------------
-
-            elif geometry["type"] == "MultiPolygon":
-
-                point = coords[0][0][0]
-
-                lon = point[0]
-
-                lat = point[1]
-
-            else:
-
-                continue
-
-            # ------------------------------------------------
-            # ADD TO HEATMAP
-            # ------------------------------------------------
-
-            heat_data.append(
-
-                [lat, lon, intensity]
-
-            )
-
-            # ------------------------------------------------
-            # OPTIONAL CASE MARKERS
-            # ------------------------------------------------
-
-            folium.CircleMarker(
-
-                location=[lat, lon],
-
-                radius=5,
-
-                color="red",
-
-                fill=True,
-
-                fill_color="red",
-
-                fill_opacity=0.7,
-
-                popup=f"Cases: {intensity}"
-
-            ).add_to(m)
-
-        except:
-
-            pass
+    [15.65, 32.58, 280]
+]
 
 
 # =====================================================
-# ADD HEATMAP LAYER
+# HEATMAP LAYER
 # =====================================================
 
 HeatMap(
 
     heat_data,
 
-    radius=25,
+    radius=35,
 
-    blur=18,
+    blur=25,
 
-    max_zoom=7,
+    max_zoom=12,
 
     min_opacity=0.4
 
 ).add_to(m)
+
+
+# =====================================================
+# CASE MARKERS
+# =====================================================
+
+for point in heat_data:
+
+    lat = point[0]
+    lon = point[1]
+    cases = point[2]
+
+    folium.CircleMarker(
+
+        location=[lat, lon],
+
+        radius=6,
+
+        color="red",
+
+        fill=True,
+
+        fill_color="red",
+
+        fill_opacity=0.8,
+
+        popup=f"Cases: {cases}"
+
+    ).add_to(m)
 
 
 # =====================================================
@@ -311,22 +346,22 @@ st.markdown("""
 <div class="glass">
 
 <h2>
-🚨 Alerts
+🚨 Active Alerts
 </h2>
 
 </div>
 """, unsafe_allow_html=True)
 
 st.error(
-    "Critical outbreak probability detected in Khartoum"
+    "Critical outbreak probability detected in Khartoum center"
 )
 
 st.warning(
-    "Heavy rainfall expected in central Sudan"
+    "Heavy rainfall expected this week"
 )
 
 st.warning(
-    "Flood risk increasing near Nile banks"
+    "Flood risk increasing near Nile areas"
 )
 
 st.info(
@@ -334,7 +369,7 @@ st.info(
 )
 
 st.success(
-    "Low risk areas remain stable"
+    "Southern districts remain stable"
 )
 
 
@@ -536,7 +571,7 @@ st.markdown("""
 
 DID Prototype HeatMap Version
 |
-Sudan GeoJSON + HeatMap + Streamlit
+Khartoum State + Streamlit + Folium
 
 </p>
 
