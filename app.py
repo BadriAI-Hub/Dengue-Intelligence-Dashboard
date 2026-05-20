@@ -13,7 +13,7 @@ from streamlit_folium import folium_static
 # =====================================================
 
 st.set_page_config(
-    page_title="Khartoum Dengue Dashboard",
+    page_title="Dengue Dashboard",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
