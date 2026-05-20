@@ -4,6 +4,7 @@ import json
 import random
 import pandas as pd
 
+from folium.plugins import HeatMap
 from streamlit_folium import folium_static
 
 
@@ -27,8 +28,8 @@ st.markdown("""
 .stApp{
     background: linear-gradient(
         135deg,
-        #2b0000,
-        #7f0000,
+        #1a0000,
+        #660000,
         #b30000
     );
 }
@@ -44,9 +45,11 @@ h1,h2,h3,h4,p,label{
 
     border-radius:20px;
 
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
 
     margin-bottom:20px;
+
+    box-shadow:0 8px 32px rgba(0,0,0,0.25);
 }
 
 [data-testid="metric-container"]{
@@ -116,10 +119,10 @@ with m1:
     st.metric("Active Cases", "338")
 
 with m2:
-    st.metric("High Risk Areas", "18")
+    st.metric("Hotspots", "12")
 
 with m3:
-    st.metric("Alerts", "12")
+    st.metric("Alerts", "7")
 
 with m4:
     st.metric("Model Accuracy", "89%")
@@ -133,7 +136,7 @@ st.markdown("""
 <div class="glass">
 
 <h2>
-🗺 Sudan Dengue Risk Map
+🔥 Sudan Dengue HeatMap
 </h2>
 
 </div>
@@ -176,10 +179,15 @@ except Exception as e:
 
 
 # =====================================================
-# GENERATE RISK DATA
+# HEATMAP DATA
 # =====================================================
 
-risk_data = {}
+heat_data = []
+
+
+# =====================================================
+# EXTRACT CENTER POINTS
+# =====================================================
 
 if geojson_data:
 
@@ -187,129 +195,73 @@ if geojson_data:
 
         try:
 
-            properties = feature.get(
-                "properties",
-                {}
-            )
+            geometry = feature["geometry"]
 
-            # -----------------------------------------
-            # IMPORTANT:
-            # change NAME_2 if needed
-            # -----------------------------------------
+            coords = geometry["coordinates"]
 
-            locality = properties.get(
-                "NAME_2",
-                ""
-            )
+            # ------------------------------------------------
+            # RANDOM CASE INTENSITY
+            # ------------------------------------------------
 
-            risk = random.choice([
-                "Critical",
-                "High",
-                "Medium",
-                "Low",
-                "None"
-            ])
+            intensity = random.randint(20, 300)
 
-            if risk == "Critical":
+            # ------------------------------------------------
+            # POLYGON
+            # ------------------------------------------------
 
-                color = "#ff0000"
+            if geometry["type"] == "Polygon":
 
-            elif risk == "High":
+                point = coords[0][0]
 
-                color = "#b30000"
+                lon = point[0]
 
-            elif risk == "Medium":
+                lat = point[1]
 
-                color = "#ff9800"
+            # ------------------------------------------------
+            # MULTIPOLYGON
+            # ------------------------------------------------
 
-            elif risk == "Low":
+            elif geometry["type"] == "MultiPolygon":
 
-                color = "#4caf50"
+                point = coords[0][0][0]
+
+                lon = point[0]
+
+                lat = point[1]
 
             else:
 
-                color = "#d9d9d9"
+                continue
 
-            cases = random.randint(
-                5,
-                250
+            # ------------------------------------------------
+            # ADD TO HEATMAP
+            # ------------------------------------------------
+
+            heat_data.append(
+
+                [lat, lon, intensity]
+
             )
 
-            risk_data[locality] = {
+            # ------------------------------------------------
+            # OPTIONAL CASE MARKERS
+            # ------------------------------------------------
 
-                "risk": risk,
+            folium.CircleMarker(
 
-                "color": color,
+                location=[lat, lon],
 
-                "cases": cases
-            }
+                radius=5,
 
-        except:
+                color="red",
 
-            pass
+                fill=True,
 
+                fill_color="red",
 
-# =====================================================
-# DRAW FEATURES
-# =====================================================
+                fill_opacity=0.7,
 
-if geojson_data:
-
-    for feature in geojson_data["features"]:
-
-        try:
-
-            properties = feature.get(
-                "properties",
-                {}
-            )
-
-            locality = properties.get(
-                "NAME_2",
-                ""
-            )
-
-            risk_info = risk_data.get(
-                locality,
-                {}
-            )
-
-            color = risk_info.get(
-                "color",
-                "#d9d9d9"
-            )
-
-            risk_level = risk_info.get(
-                "risk",
-                "None"
-            )
-
-            cases = risk_info.get(
-                "cases",
-                0
-            )
-
-            folium.GeoJson(
-
-                feature,
-
-                style_function=lambda x,
-                color=color: {
-
-                    "fillColor": color,
-
-                    "color": "white",
-
-                    "weight": 1,
-
-                    "fillOpacity": 0.7
-                },
-
-                tooltip=f"""
-                {locality}
-                | Risk: {risk_level}
-                | Cases: {cases}
-                """
+                popup=f"Cases: {intensity}"
 
             ).add_to(m)
 
@@ -319,12 +271,34 @@ if geojson_data:
 
 
 # =====================================================
-# SHOW MAP
+# ADD HEATMAP LAYER
+# =====================================================
+
+HeatMap(
+
+    heat_data,
+
+    radius=25,
+
+    blur=18,
+
+    max_zoom=7,
+
+    min_opacity=0.4
+
+).add_to(m)
+
+
+# =====================================================
+# DISPLAY MAP
 # =====================================================
 
 folium_static(
+
     m,
+
     width=1200,
+
     height=700
 )
 
@@ -344,23 +318,23 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.error(
-    "Critical outbreak probability detected"
+    "Critical outbreak probability detected in Khartoum"
 )
 
 st.warning(
-    "Heavy rainfall expected"
+    "Heavy rainfall expected in central Sudan"
 )
 
 st.warning(
-    "Flood risk increasing"
+    "Flood risk increasing near Nile banks"
 )
 
 st.info(
-    "Mosquito density increased"
+    "Mosquito density increased by 23%"
 )
 
 st.success(
-    "Low risk areas stable"
+    "Low risk areas remain stable"
 )
 
 
@@ -382,7 +356,7 @@ tab1, tab2, tab3 = st.tabs([
 with tab1:
 
     st.subheader(
-        "📈 Multi-Variable Forecast"
+        "📈 Multi-Variable Dengue Forecast"
     )
 
     forecast_df = pd.DataFrame({
@@ -560,9 +534,9 @@ st.markdown("""
 
 <p style='color:white;'>
 
-DID Prototype Stable Version
+DID Prototype HeatMap Version
 |
-Sudan GeoJSON + Streamlit + Folium
+Sudan GeoJSON + HeatMap + Streamlit
 
 </p>
 
