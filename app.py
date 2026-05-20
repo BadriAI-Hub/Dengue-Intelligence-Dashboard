@@ -189,7 +189,7 @@ st.markdown("""
 <div class="glass">
 
 <h1>
-🦟 Khartoum Dengue Intelligence Dashboard
+🦟 Dengue Intelligence Dashboard (DID)
 </h1>
 
 <p>
